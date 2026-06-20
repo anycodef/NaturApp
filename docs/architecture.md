@@ -5,19 +5,27 @@ capas. Cada capa está organizada en módulos independientes con
 responsabilidades bien definidas, lo que permite desarrollarlos, probarlos
 y mantenerlos por separado.
 
-```
-┌─────────────────────────────┐         ┌──────────────────────────────┐
-│   Frontend (React Native)   │  HTTP   │   Backend (Express + Mongo)  │
-│                             │ ──────▶ │                              │
-│  app/ ─ pantallas           │  JSON   │  routes/ ─ endpoints REST    │
-│  src/hooks/ ─ lógica        │ ◀────── │  middleware/ ─ auth JWT      │
-│  src/services/ ─ HTTP       │         │  models/ ─ esquemas Mongoose │
-│  src/components/ ─ UI        │         │  server.js ─ punto de entrada│
-└─────────────────────────────┘         └──────────────┬───────────────┘
-                                                        │
-                                                  ┌─────▼─────┐
-                                                  │  MongoDB  │
-                                                  └───────────┘
+```mermaid
+flowchart LR
+    subgraph Frontend["Frontend (React Native)"]
+        direction TB
+        F1["app/ — pantallas"]
+        F2["src/hooks/ — lógica"]
+        F3["src/services/ — HTTP"]
+        F4["src/components/ — UI"]
+    end
+    subgraph Backend["Backend (Express)"]
+        direction TB
+        B1["routes/ — endpoints REST"]
+        B2["middleware/ — auth JWT"]
+        B3["models/ — esquemas Mongoose"]
+        B4["server.js — punto de entrada"]
+    end
+    DB[("MongoDB")]
+
+    Frontend -- "HTTP / JSON (solicitud)" --> Backend
+    Backend -- "JSON (respuesta)" --> Frontend
+    Backend <--> DB
 ```
 
 ## Backend

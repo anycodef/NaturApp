@@ -14,28 +14,25 @@ usa como ejemplo la acción **"Agregar al carrito"**.
 
 ## Diagrama
 
-```
-Usuario
-  │ toque
-  ▼
-ProductCard.onPress ─▶ useCart.addItem ─▶ CartAPI.addItem
-                                              │
-                                       apiService.request
-                                              │ fetch POST /api/cart/add
-                                              ▼
-                                   ┌───────────────────────┐
-                                   │  Express (cartRoutes) │
-                                   │  authenticate (JWT)   │
-                                   │  actualiza carrito    │
-                                   └───────────┬───────────┘
-                                               │ JSON { success, data }
-                                               ▼
-                                   apiService deserializa
-                                               │
-                                   useCart.loadCart ─▶ setState
-                                               │
-                                               ▼
-                                   React re-renderiza CartScreen
+```mermaid
+sequenceDiagram
+    actor U as Usuario
+    participant UI as ProductCard / CartScreen
+    participant H as useCart
+    participant API as apiService
+    participant S as Express (cartRoutes)
+
+    U->>UI: toque "Agregar al carrito"
+    UI->>H: addItem(product)
+    H->>API: CartAPI.addItem(item)
+    API->>S: POST /api/cart/add (Bearer token)
+    Note over S: authenticate (JWT) + actualiza carrito
+    S-->>API: JSON { success, data }
+    H->>API: loadCart() vía CartAPI.get()
+    API->>S: GET /api/cart
+    S-->>API: JSON { items, total, count }
+    API-->>H: datos deserializados
+    H->>UI: setState y re-render
 ```
 
 ## Patrón general
