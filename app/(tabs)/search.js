@@ -1,7 +1,7 @@
 // app/(tabs)/search.js
 import { useState, useCallback } from 'react';
 import { View, TextInput, FlatList, ActivityIndicator,
-         StyleSheet, Text } from 'react-native';
+         StyleSheet, Text, Alert } from 'react-native';
 import { ProductAPI } from '../../src/services/apiService';
 import ProductCard from '../../src/components/ProductCard';
 import { useCart } from '../../src/hooks/useCart';
@@ -13,6 +13,14 @@ export default function SearchScreen() {
   const [loading, setLoading] = useState(false);
   const [searched, setSearched] = useState(false);
   const { addItem } = useCart();
+
+  const handleAddToCart = async (item) => {
+    try {
+      await addItem(item);
+    } catch (err) {
+      Alert.alert('Carrito', err.message);
+    }
+  };
 
   // Búsqueda con debounce manual
   const handleSearch = useCallback(async (text) => {
@@ -53,7 +61,7 @@ export default function SearchScreen() {
           contentContainerStyle={styles.list}
           renderItem={({ item }) => (
             <ProductCard product={item}
-              onAddToCart={() => addItem(item)} />
+              onAddToCart={() => handleAddToCart(item)} />
           )}
           ListEmptyComponent={searched ? (
             <Text style={styles.empty}>

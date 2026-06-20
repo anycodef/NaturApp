@@ -1,6 +1,6 @@
 // app/(tabs)/home.js
 import { View, FlatList, ActivityIndicator, StyleSheet,
-         RefreshControl, Text } from 'react-native';
+         RefreshControl, Text, Alert } from 'react-native';
 import { useProducts } from '../../src/hooks/useProducts';
 import { useCart } from '../../src/hooks/useCart';
 import ProductCard from '../../src/components/ProductCard';
@@ -13,6 +13,14 @@ export default function HomeScreen() {
     filterByCategory, loadMore, refresh
   } = useProducts();
   const { addItem } = useCart();
+
+  const handleAddToCart = async (item) => {
+    try {
+      await addItem(item);
+    } catch (err) {
+      Alert.alert('Carrito', err.message);
+    }
+  };
 
   // Spinner de carga inicial
   if (loading && products.length === 0) {
@@ -44,7 +52,7 @@ export default function HomeScreen() {
         renderItem={({ item }) => (
           <ProductCard
             product={item}
-            onAddToCart={() => addItem(item)}
+            onAddToCart={() => handleAddToCart(item)}
           />
         )}
         refreshControl={
