@@ -2,10 +2,12 @@
 
 Base URL: `http://<host>:9090/api`
 
-Las respuestas siguen el formato `{ success, data | message }`. Los
-endpoints marcados con 🔒 requieren el header
-`Authorization: Bearer <token>`. Los marcados con 👑 requieren rol
-`admin`.
+Las respuestas siguen el formato `{ success, data | message }`. En la
+columna **Auth** de cada tabla se indica el nivel de acceso requerido:
+
+- **Token** — requiere el header `Authorization: Bearer <token>`.
+- **Token + admin** — además del token, requiere rol `admin`.
+- **Público** — no requiere autenticación.
 
 ## Health
 
@@ -19,9 +21,9 @@ endpoints marcados con 🔒 requieren el header
 |--------|------|------|-------------|
 | GET | `/products` | — | Lista productos. Query: `category`, `search`, `page`, `limit`. Devuelve `data` + `pagination`. |
 | GET | `/products/:id` | — | Detalle de un producto (con categoría poblada). |
-| POST | `/products` | 🔒👑 | Crea un producto. |
-| PUT | `/products/:id` | 🔒👑 | Actualiza un producto. |
-| DELETE | `/products/:id` | 🔒👑 | Eliminación lógica (`isActive: false`). |
+| POST | `/products` | Token + admin | Crea un producto. |
+| PUT | `/products/:id` | Token + admin | Actualiza un producto. |
+| DELETE | `/products/:id` | Token + admin | Eliminación lógica (`isActive: false`). |
 
 Ejemplo de respuesta de listado:
 
@@ -38,9 +40,9 @@ Ejemplo de respuesta de listado:
 | Método | Ruta | Auth | Descripción |
 |--------|------|------|-------------|
 | GET | `/categories` | — | Lista categorías activas. |
-| POST | `/categories` | 🔒👑 | Crea una categoría. |
-| PUT | `/categories/:id` | 🔒👑 | Actualiza una categoría. |
-| DELETE | `/categories/:id` | 🔒👑 | Eliminación lógica. |
+| POST | `/categories` | Token + admin | Crea una categoría. |
+| PUT | `/categories/:id` | Token + admin | Actualiza una categoría. |
+| DELETE | `/categories/:id` | Token + admin | Eliminación lógica. |
 
 ## Usuarios — `/users`
 
@@ -48,8 +50,8 @@ Ejemplo de respuesta de listado:
 |--------|------|------|-------------|
 | POST | `/users/register` | — | Registra un usuario y devuelve `{ user, token }`. |
 | POST | `/users/login` | — | Autentica y devuelve `{ user, token }`. |
-| GET | `/users/profile` | 🔒 | Devuelve el perfil del usuario autenticado. |
-| PUT | `/users/profile` | 🔒 | Actualiza `name`, `phone`, `address`. |
+| GET | `/users/profile` | Token | Devuelve el perfil del usuario autenticado. |
+| PUT | `/users/profile` | Token | Actualiza `name`, `phone`, `address`. |
 
 Ejemplo de login:
 
@@ -63,10 +65,10 @@ curl -X POST http://localhost:9090/api/users/login \
 
 | Método | Ruta | Auth | Descripción |
 |--------|------|------|-------------|
-| POST | `/orders` | 🔒 | Crea un pedido. Valida stock y calcula el total. |
-| GET | `/orders` | 🔒 | Lista los pedidos del usuario. |
-| GET | `/orders/:id` | 🔒 | Detalle de un pedido. |
-| PUT | `/orders/:id/cancel` | 🔒 | Cancela un pedido pendiente y restaura stock. |
+| POST | `/orders` | Token | Crea un pedido. Valida stock y calcula el total. |
+| GET | `/orders` | Token | Lista los pedidos del usuario. |
+| GET | `/orders/:id` | Token | Detalle de un pedido. |
+| PUT | `/orders/:id/cancel` | Token | Cancela un pedido pendiente y restaura stock. |
 
 Cuerpo de creación de pedido:
 
@@ -84,11 +86,11 @@ El carrito se mantiene en memoria por usuario (identificado por el token).
 
 | Método | Ruta | Auth | Descripción |
 |--------|------|------|-------------|
-| GET | `/cart` | 🔒 | Devuelve `items`, `total` y `count`. |
-| POST | `/cart/add` | 🔒 | Agrega un ítem (o incrementa su cantidad). |
-| PUT | `/cart/:productId` | 🔒 | Actualiza la cantidad de un ítem. |
-| DELETE | `/cart/:productId` | 🔒 | Elimina un ítem del carrito. |
-| DELETE | `/cart` | 🔒 | Vacía el carrito. |
+| GET | `/cart` | Token | Devuelve `items`, `total` y `count`. |
+| POST | `/cart/add` | Token | Agrega un ítem (o incrementa su cantidad). |
+| PUT | `/cart/:productId` | Token | Actualiza la cantidad de un ítem. |
+| DELETE | `/cart/:productId` | Token | Elimina un ítem del carrito. |
+| DELETE | `/cart` | Token | Vacía el carrito. |
 
 ## Códigos de estado
 

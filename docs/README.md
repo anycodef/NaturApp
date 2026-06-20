@@ -17,7 +17,7 @@ naturales. Está compuesta por dos capas independientes:
 | [backend.md](./backend.md) | Modelos, middleware y rutas del servidor. |
 | [api-reference.md](./api-reference.md) | Referencia completa de endpoints REST. |
 | [frontend.md](./frontend.md) | Navegación, hooks, pantallas y componentes. |
-| [data-flow.md](./data-flow.md) | Flujo de datos de extremo a extremo (toque → render). |
+| [data-flow.md](./data-flow.md) | Flujo de datos de extremo a extremo (del toque al render). |
 | [dependencies.md](./dependencies.md) | Versiones de dependencias y política de versionado. |
 | [fixes.md](./fixes.md) | Defectos heredados de la guía y sus reparaciones. |
 
