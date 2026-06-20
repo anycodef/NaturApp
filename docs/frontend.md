@@ -22,6 +22,20 @@ endpoints del backend:
 El token se inyecta en memoria con `setToken` / `clearToken`. Si cambia la
 URL del backend, solo se modifica `BASE_URL` en este archivo.
 
+## Estado global — `src/context/`
+
+La sesión y el carrito son **estado global** mediante React Context, de
+modo que existe una única fuente de verdad compartida por todas las
+pantallas. Los providers se montan en `app/_layout.js`.
+
+| Provider | Responsabilidad |
+|----------|-----------------|
+| `AuthContext` (`AuthProvider` + `useAuth`) | Restaura el token **una vez al arrancar** la app, gestiona login/registro/logout y persiste el token con `AsyncStorage`. |
+| `CartContext` (`CartProvider` + `useCart`) | Carrito compartido: agregar desde cualquier pantalla se refleja de inmediato en la pantalla de carrito. Solo opera con sesión activa. |
+
+> El motivo de elevar estos dos a context (en lugar de hooks locales por
+> pantalla) se explica en [fixes.md](./fixes.md).
+
 ## Custom hooks — `src/hooks/`
 
 Cada hook encapsula el estado (`loading`, `error`, datos) y las acciones
@@ -30,8 +44,8 @@ de un dominio, actuando de intermediario entre las pantallas y la API.
 | Hook | Responsabilidad |
 |------|-----------------|
 | `useProducts` | Carga inicial en paralelo (`Promise.all`), filtro por categoría, búsqueda, paginación (`loadMore`) y pull-to-refresh. |
-| `useCart` | Carga el carrito y sincroniza con el servidor tras cada operación (add, update, remove, clear). |
-| `useAuth` | Restaura la sesión al iniciar, login, registro y logout. Persiste el token con `AsyncStorage`. |
+| `useCart` | Reexporta el hook de `CartContext` (carrito global). |
+| `useAuth` | Reexporta el hook de `AuthContext` (sesión global). |
 | `useOrders` | Lista, crea y cancela pedidos. |
 
 ## Navegación

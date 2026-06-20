@@ -19,6 +19,7 @@ naturales. Está compuesta por dos capas independientes:
 | [frontend.md](./frontend.md) | Navegación, hooks, pantallas y componentes. |
 | [data-flow.md](./data-flow.md) | Flujo de datos de extremo a extremo (toque → render). |
 | [dependencies.md](./dependencies.md) | Versiones de dependencias y política de versionado. |
+| [fixes.md](./fixes.md) | Defectos heredados de la guía y sus reparaciones. |
 
 ## Resumen rápido
 

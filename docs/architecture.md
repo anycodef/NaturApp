@@ -68,10 +68,13 @@ app/                      # Expo Router (file-based routing)
 
 src/
 ├── services/apiService.js   # Cliente HTTP centralizado
+├── context/                 # Estado global (providers)
+│   ├── AuthContext.js       # Sesión y token (restaurado al arrancar)
+│   └── CartContext.js       # Carrito compartido entre pantallas
 ├── hooks/                   # Lógica de negocio (estado + acciones)
 │   ├── useProducts.js
-│   ├── useCart.js
-│   ├── useAuth.js
+│   ├── useCart.js           # reexporta el hook de CartContext
+│   ├── useAuth.js           # reexporta el hook de AuthContext
 │   └── useOrders.js
 └── components/              # UI reutilizable
     ├── ProductCard.js
