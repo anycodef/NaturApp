@@ -3,12 +3,14 @@ import { Stack } from 'expo-router';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { AuthProvider } from '../src/context/AuthContext';
 import { CartProvider } from '../src/context/CartContext';
+import { ToastProvider } from '../src/context/ToastContext';
 
 export default function RootLayout() {
   return (
     <SafeAreaProvider>
       <AuthProvider>
         <CartProvider>
+          <ToastProvider>
           <Stack screenOptions={{
             headerStyle: { backgroundColor: '#1A5276' },
             headerTintColor: '#FFFFFF',
@@ -36,6 +38,7 @@ export default function RootLayout() {
               title: 'Finalizar Compra'
             }} />
           </Stack>
+          </ToastProvider>
         </CartProvider>
       </AuthProvider>
     </SafeAreaProvider>

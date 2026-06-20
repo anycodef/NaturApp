@@ -1,10 +1,11 @@
 // app/(tabs)/search.js
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import { View, TextInput, FlatList, ActivityIndicator,
-         StyleSheet, Text, Alert } from 'react-native';
+         StyleSheet, Text } from 'react-native';
 import { ProductAPI } from '../../src/services/apiService';
 import ProductCard from '../../src/components/ProductCard';
 import { useCart } from '../../src/hooks/useCart';
+import { useToast } from '../../src/context/ToastContext';
 import { Ionicons } from '@expo/vector-icons';
 
 export default function SearchScreen() {
@@ -13,19 +14,21 @@ export default function SearchScreen() {
   const [loading, setLoading] = useState(false);
   const [searched, setSearched] = useState(false);
   const { addItem } = useCart();
+  const { showToast } = useToast();
+  const timer = useRef(null);
 
   const handleAddToCart = async (item) => {
     try {
       await addItem(item);
+      showToast(`${item.name} agregado al carrito`);
     } catch (err) {
-      Alert.alert('Carrito', err.message);
+      showToast(err.message, 'alert-circle');
     }
   };
 
-  // Búsqueda con debounce manual
-  const handleSearch = useCallback(async (text) => {
-    setQuery(text);
-    if (text.length < 2) { setResults([]); return; }
+  // Búsqueda en vivo con debounce: dispara mientras se escribe (a partir
+  // de un carácter) sin esperar a palabras completas.
+  const runSearch = useCallback(async (text) => {
     setLoading(true);
     setSearched(true);
     try {
@@ -36,6 +39,23 @@ export default function SearchScreen() {
     } finally {
       setLoading(false);
     }
+  }, []);
+
+  const handleSearch = useCallback((text) => {
+    setQuery(text);
+    if (timer.current) clearTimeout(timer.current);
+    const term = text.trim();
+    if (term.length < 1) {
+      setResults([]);
+      setSearched(false);
+      return;
+    }
+    timer.current = setTimeout(() => runSearch(term), 300);
+  }, [runSearch]);
+
+  // Limpia el temporizador pendiente al desmontar
+  useEffect(() => () => {
+    if (timer.current) clearTimeout(timer.current);
   }, []);
 
   return (

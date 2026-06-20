@@ -1,8 +1,9 @@
 // app/(tabs)/home.js
 import { View, FlatList, ActivityIndicator, StyleSheet,
-         RefreshControl, Text, Alert } from 'react-native';
+         RefreshControl, Text } from 'react-native';
 import { useProducts } from '../../src/hooks/useProducts';
 import { useCart } from '../../src/hooks/useCart';
+import { useToast } from '../../src/context/ToastContext';
 import ProductCard from '../../src/components/ProductCard';
 import CategoryChips from '../../src/components/CategoryChips';
 
@@ -13,12 +14,14 @@ export default function HomeScreen() {
     filterByCategory, loadMore, refresh
   } = useProducts();
   const { addItem } = useCart();
+  const { showToast } = useToast();
 
   const handleAddToCart = async (item) => {
     try {
       await addItem(item);
+      showToast(`${item.name} agregado al carrito`);
     } catch (err) {
-      Alert.alert('Carrito', err.message);
+      showToast(err.message, 'alert-circle');
     }
   };
 

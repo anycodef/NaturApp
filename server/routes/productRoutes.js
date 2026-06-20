@@ -10,7 +10,14 @@ router.get('/', async (req, res) => {
     const { category, search, page = 1, limit = 20 } = req.query;
     const filter = { isActive: true };
     if (category) filter.category = category;
-    if (search) filter.$text = { $search: search };
+    // Coincidencia parcial (no solo palabras completas): busca el término
+    // como subcadena en el nombre o la descripción, sin distinguir mayús.
+    if (search) {
+      filter.$or = [
+        { name: { $regex: search, $options: 'i' } },
+        { description: { $regex: search, $options: 'i' } }
+      ];
+    }
 
     const products = await Product.find(filter)
       .populate('category', 'name icon')

@@ -4,6 +4,7 @@ import { View, Text, TextInput, ScrollView,
          TouchableOpacity, Alert, ActivityIndicator,
          StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useCart } from '../src/hooks/useCart';
 import { useOrders } from '../src/hooks/useOrders';
 import { Ionicons } from '@expo/vector-icons';
@@ -12,6 +13,7 @@ export default function CheckoutScreen() {
   const { items, total, clearCart } = useCart();
   const { createOrder } = useOrders();
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const [loading, setLoading] = useState(false);
   const [address, setAddress] = useState({
     street: '', city: '', zipCode: ''
@@ -49,7 +51,8 @@ export default function CheckoutScreen() {
   };
 
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView style={styles.container}
+      contentContainerStyle={{ paddingBottom: insets.bottom + 24 }}>
       <Text style={styles.sectionTitle}>
         Dirección de Envío
       </Text>

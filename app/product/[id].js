@@ -3,15 +3,19 @@ import { useState, useEffect } from 'react';
 import { View, Text, Image, ScrollView, TouchableOpacity,
          ActivityIndicator, StyleSheet, Alert } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ProductAPI } from '../../src/services/apiService';
 import { useCart } from '../../src/hooks/useCart';
+import { useToast } from '../../src/context/ToastContext';
 import { Ionicons } from '@expo/vector-icons';
 
 export default function ProductDetailScreen() {
   const { id } = useLocalSearchParams();
+  const insets = useSafeAreaInsets();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const { addItem } = useCart();
+  const { showToast } = useToast();
 
   // Consumo del endpoint GET /products/:id
   useEffect(() => {
@@ -51,15 +55,15 @@ export default function ProductDetailScreen() {
   const handleAddToCart = async () => {
     try {
       await addItem(product);
-      Alert.alert('Agregado',
-        `${product.name} agregado al carrito`);
+      showToast(`${product.name} agregado al carrito`);
     } catch (err) {
-      Alert.alert('Error', err.message);
+      showToast(err.message, 'alert-circle');
     }
   };
 
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView style={styles.container}
+      contentContainerStyle={{ paddingBottom: insets.bottom + 24 }}>
       <Image source={{ uri: product.image }}
         style={styles.image} />
       <View style={styles.content}>
