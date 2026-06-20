@@ -1,217 +1,123 @@
-import React from 'react';
-import {
-  View,
-  Text,
-  TextInput,
-  Switch,
-  TouchableOpacity,
-  StyleSheet,
-  Alert,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-} from 'react-native';
-import { useProfile } from '../../src/viewmodels/useProfile';
+// app/(tabs)/profile.js
+import { View, Text, TouchableOpacity, StyleSheet,
+         Alert, ActivityIndicator } from 'react-native';
+import { useRouter } from 'expo-router';
+import { useAuth } from '../../src/hooks/useAuth';
 import { Ionicons } from '@expo/vector-icons';
 
 export default function ProfileScreen() {
-  const {
-    name,
-    setName,
-    email,
-    setEmail,
-    darkTheme,
-    notifications,
-    saveProfile,
-    toggleTheme,
-    toggleNotifications,
-  } = useProfile();
+  const { user, loading, logout } = useAuth();
+  const router = useRouter();
 
-  const handleSave = async () => {
-    if (!name.trim()) {
-      Alert.alert('Error', 'El nombre no puede estar vacío');
-      return;
-    }
-    if (!email.trim() || !email.includes('@')) {
-      Alert.alert('Error', 'Ingrese un correo electrónico válido');
-      return;
-    }
-    try {
-      await saveProfile();
-      Alert.alert('Perfil Guardado', 'Los datos del perfil se guardaron con éxito.');
-    } catch (e) {
-      Alert.alert('Error', 'No se pudieron guardar los datos.');
-    }
+  if (loading) {
+    return (
+      <View style={styles.center}>
+        <ActivityIndicator size="large" color="#1A5276" />
+      </View>
+    );
+  }
+
+  if (!user) {
+    return (
+      <View style={styles.center}>
+        <Ionicons name="person-circle-outline"
+          size={80} color="#BDC3C7" />
+        <Text style={styles.guestText}>
+          Inicia sesión para ver tu perfil
+        </Text>
+        <TouchableOpacity style={styles.loginBtn}
+          onPress={() => router.push('/auth/login')}>
+          <Text style={styles.loginBtnText}>
+            Iniciar Sesión
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => router.push('/auth/register')}>
+          <Text style={styles.registerLink}>
+            ¿No tienes cuenta? Regístrate
+          </Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
+
+  const handleLogout = () => {
+    Alert.alert('Cerrar Sesión', '¿Estás seguro?',
+      [{ text: 'Cancelar' },
+       { text: 'Sí', onPress: logout }]);
   };
 
   return (
-    <KeyboardAvoidingView
-      style={{ flex: 1 }}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-    >
-      <ScrollView contentContainerStyle={styles.container}>
-        <View style={styles.avatarSection}>
-          <View style={styles.avatarContainer}>
-            <Ionicons name="person" size={60} color="#1A5276" />
-          </View>
-          <Text style={styles.userName}>{name || 'Usuario NaturApp'}</Text>
-          <Text style={styles.userEmail}>{email || 'usuario@naturapp.com'}</Text>
+    <View style={styles.container}>
+      <View style={styles.header}>
+        <View style={styles.avatar}>
+          <Text style={styles.avatarText}>
+            {user.name.charAt(0).toUpperCase()}
+          </Text>
         </View>
+        <Text style={styles.userName}>{user.name}</Text>
+        <Text style={styles.userEmail}>{user.email}</Text>
+      </View>
 
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Datos Personales</Text>
+      <View style={styles.menu}>
+        <MenuItem icon="location" label="Mis Direcciones" />
+        <MenuItem icon="heart" label="Favoritos" />
+        <MenuItem icon="settings" label="Configuración" />
+        <MenuItem icon="help-circle" label="Ayuda" />
+      </View>
 
-          <Text style={styles.label}>Nombre completo</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Tu nombre"
-            value={name}
-            onChangeText={setName}
-          />
+      <TouchableOpacity style={styles.logoutBtn}
+        onPress={handleLogout}>
+        <Ionicons name="log-out-outline" size={22}
+          color="#E74C3C" />
+        <Text style={styles.logoutText}>Cerrar Sesión</Text>
+      </TouchableOpacity>
+    </View>
+  );
+}
 
-          <Text style={styles.label}>Correo electrónico</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="tu@email.com"
-            value={email}
-            onChangeText={setEmail}
-            keyboardType="email-address"
-            autoCapitalize="none"
-          />
-
-          <TouchableOpacity style={styles.saveBtn} onPress={handleSave}>
-            <Text style={styles.saveBtnText}>Guardar Datos</Text>
-          </TouchableOpacity>
-        </View>
-
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Preferencias</Text>
-
-          <View style={styles.preferenceRow}>
-            <View style={styles.preferenceLabelCol}>
-              <Ionicons name="moon-outline" size={20} color="#333" style={styles.prefIcon} />
-              <Text style={styles.preferenceText}>Tema Oscuro</Text>
-            </View>
-            <Switch
-              value={darkTheme}
-              onValueChange={toggleTheme}
-              trackColor={{ false: '#767577', true: '#148F77' }}
-              thumbColor={darkTheme ? '#FFF' : '#f4f3f4'}
-            />
-          </View>
-
-          <View style={styles.preferenceRow}>
-            <View style={styles.preferenceLabelCol}>
-              <Ionicons name="notifications-outline" size={20} color="#333" style={styles.prefIcon} />
-              <Text style={styles.preferenceText}>Notificaciones</Text>
-            </View>
-            <Switch
-              value={notifications}
-              onValueChange={toggleNotifications}
-              trackColor={{ false: '#767577', true: '#148F77' }}
-              thumbColor={notifications ? '#FFF' : '#f4f3f4'}
-            />
-          </View>
-        </View>
-      </ScrollView>
-    </KeyboardAvoidingView>
+function MenuItem({ icon, label }) {
+  return (
+    <TouchableOpacity style={styles.menuItem}>
+      <Ionicons name={icon} size={22} color="#1A5276" />
+      <Text style={styles.menuLabel}>{label}</Text>
+      <Ionicons name="chevron-forward" size={20}
+        color="#BDC3C7" />
+    </TouchableOpacity>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    padding: 20,
-    backgroundColor: '#F5F5F5',
-    flexGrow: 1,
-  },
-  avatarSection: {
-    alignItems: 'center',
-    marginBottom: 24,
-    marginTop: 10,
-  },
-  avatarContainer: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    backgroundColor: '#D6E4F0',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 12,
-    borderWidth: 2,
-    borderColor: '#1A5276',
-  },
-  userName: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#333',
-  },
-  userEmail: {
-    fontSize: 14,
-    color: '#777',
-    marginTop: 4,
-  },
-  section: {
-    backgroundColor: '#FFF',
-    borderRadius: 10,
-    padding: 16,
-    marginBottom: 20,
-    elevation: 1,
-    borderWidth: 1,
-    borderColor: '#E0E0E0',
-  },
-  sectionTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#1A5276',
-    marginBottom: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F0F0F0',
-    paddingBottom: 8,
-  },
-  label: {
-    fontSize: 13,
-    color: '#666',
-    marginBottom: 6,
-    fontWeight: '500',
-  },
-  input: {
-    backgroundColor: '#F9F9F9',
-    borderWidth: 1,
-    borderColor: '#DDD',
-    borderRadius: 6,
-    padding: 10,
-    marginBottom: 16,
-    fontSize: 14,
-  },
-  saveBtn: {
-    backgroundColor: '#148F77',
-    borderRadius: 8,
-    padding: 12,
-    alignItems: 'center',
-    marginTop: 4,
-  },
-  saveBtnText: {
-    color: '#FFF',
-    fontSize: 15,
-    fontWeight: 'bold',
-  },
-  preferenceRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F5F5F5',
-  },
-  preferenceLabelCol: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  prefIcon: {
-    marginRight: 10,
-  },
-  preferenceText: {
-    fontSize: 15,
-    color: '#333',
-  },
+  container: { flex: 1, backgroundColor: '#F8F9FA' },
+  center: { flex: 1, justifyContent: 'center',
+            alignItems: 'center', padding: 20 },
+  guestText: { marginTop: 12, color: '#7F8C8D', fontSize: 15 },
+  loginBtn: { backgroundColor: '#1A5276', paddingHorizontal: 40,
+              paddingVertical: 14, borderRadius: 10,
+              marginTop: 20 },
+  loginBtnText: { color: '#FFF', fontSize: 16,
+                  fontWeight: 'bold' },
+  registerLink: { marginTop: 16, color: '#2E86C1',
+                  fontSize: 14 },
+  header: { backgroundColor: '#1A5276', paddingTop: 30,
+            paddingBottom: 24, alignItems: 'center' },
+  avatar: { width: 70, height: 70, borderRadius: 35,
+            backgroundColor: '#148F77',
+            justifyContent: 'center', alignItems: 'center' },
+  avatarText: { color: '#FFF', fontSize: 28,
+                fontWeight: 'bold' },
+  userName: { color: '#FFF', fontSize: 20, fontWeight: 'bold',
+              marginTop: 10 },
+  userEmail: { color: '#D5DBDB', fontSize: 14, marginTop: 4 },
+  menu: { marginTop: 16, backgroundColor: '#FFF',
+          borderRadius: 12, marginHorizontal: 16 },
+  menuItem: { flexDirection: 'row', alignItems: 'center',
+              padding: 16, borderBottomWidth: 1,
+              borderBottomColor: '#F2F3F4' },
+  menuLabel: { flex: 1, marginLeft: 14, fontSize: 15,
+               color: '#2C3E50' },
+  logoutBtn: { flexDirection: 'row', alignItems: 'center',
+               justifyContent: 'center', marginTop: 30 },
+  logoutText: { color: '#E74C3C', fontSize: 15,
+                fontWeight: '600', marginLeft: 8 }
 });
