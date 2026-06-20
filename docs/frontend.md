@@ -34,6 +34,7 @@ pantallas. Los providers se montan en `app/_layout.js`.
 |----------|-----------------|
 | `AuthContext` (`AuthProvider` + `useAuth`) | Restaura el token **una vez al arrancar** la app, gestiona login/registro/logout y persiste el token con `AsyncStorage`. |
 | `CartContext` (`CartProvider` + `useCart`) | Carrito compartido: agregar desde cualquier pantalla se refleja de inmediato en la pantalla de carrito. Solo opera con sesión activa. |
+| `ToastContext` (`ToastProvider` + `useToast`) | Notificación breve y no bloqueante usada para confirmar acciones (por ejemplo, agregar al carrito). |
 
 > El motivo de elevar estos dos a context (en lugar de hooks locales por
 > pantalla) se explica en [fixes.md](./fixes.md).

@@ -78,7 +78,8 @@ src/
 ├── services/apiService.js   # Cliente HTTP centralizado
 ├── context/                 # Estado global (providers)
 │   ├── AuthContext.js       # Sesión y token (restaurado al arrancar)
-│   └── CartContext.js       # Carrito compartido entre pantallas
+│   ├── CartContext.js       # Carrito compartido entre pantallas
+│   └── ToastContext.js      # Notificación no bloqueante (toast)
 ├── hooks/                   # Lógica de negocio (estado + acciones)
 │   ├── useProducts.js
 │   ├── useCart.js           # reexporta el hook de CartContext
