@@ -1,7 +1,11 @@
 // src/services/apiService.js
 // Módulo centralizado de comunicación con el backend
 
-const BASE_URL = 'http://localhost:9090/api';
+// La URL del backend se define por entorno (EXPO_PUBLIC_API_URL en .env).
+// Ver .env.example. El valor por defecto solo sirve para emuladores que
+// comparten red con el host.
+const BASE_URL = process.env.EXPO_PUBLIC_API_URL
+  || 'http://localhost:9090/api';
 let authToken = null;
 
 export const setToken = (token) => { authToken = token; };

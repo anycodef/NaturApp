@@ -19,8 +19,10 @@ endpoints del backend:
 - `CartAPI` — `get`, `addItem`, `updateQuantity`, `removeItem`, `clear`.
 - `OrderAPI` — `create`, `getAll`, `getById`, `cancel`.
 
-El token se inyecta en memoria con `setToken` / `clearToken`. Si cambia la
-URL del backend, solo se modifica `BASE_URL` en este archivo.
+El token se inyecta en memoria con `setToken` / `clearToken`. La URL del
+backend (`BASE_URL`) se toma de la variable de entorno
+`EXPO_PUBLIC_API_URL` (definida en `.env`), con `http://localhost:9090/api`
+como valor por defecto.
 
 ## Estado global — `src/context/`
 

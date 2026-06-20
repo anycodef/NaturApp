@@ -51,16 +51,24 @@ productos y categorías.
 
 ## 3. Frontend (app móvil)
 
-La URL del backend está configurada en
-`src/services/apiService.js` mediante la constante `BASE_URL`:
+La URL del backend se configura por **variable de entorno**, no en el
+código. Copia la plantilla y define la dirección del servidor:
 
-```js
-const BASE_URL = 'http://localhost:9090/api';
+```bash
+cp .env.example .env
 ```
 
-> Cambia esta IP por la IP LAN de la máquina que ejecuta el backend para
-> que un dispositivo físico pueda alcanzarlo. `localhost` solo funciona
-> en emuladores que comparten red con el host.
+Edita `.env` y asigna a `EXPO_PUBLIC_API_URL` la IP LAN de la máquina que
+ejecuta el backend (para dispositivos físicos) o `localhost` (para
+emuladores que comparten red con el host):
+
+```
+EXPO_PUBLIC_API_URL=http://YOUR_LAN_IP:9090/api
+```
+
+> El archivo `.env` está en `.gitignore`, de modo que cada quien define
+> su propia URL sin versionarla. Si la variable no existe, `apiService.js`
+> usa `http://localhost:9090/api` como valor por defecto.
 
 Luego, desde la raíz del proyecto:
 

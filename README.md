@@ -83,12 +83,12 @@ Usuarios creados por el seed:
 
 ### 3. Aplicación móvil
 
-Antes de arrancar, ajusta la constante `BASE_URL` en
-`src/services/apiService.js` con la IP de la máquina que ejecuta el
-backend, de modo que el dispositivo pueda alcanzarlo dentro de la red
-local.
+Antes de arrancar, define la URL del backend por variable de entorno
+(copiando la plantilla) para que el dispositivo pueda alcanzarlo dentro de
+la red local:
 
 ```bash
+cp .env.example .env   # luego edita EXPO_PUBLIC_API_URL con tu IP LAN
 npm install
 npm start
 ```
