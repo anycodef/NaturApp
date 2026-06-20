@@ -1,110 +1,84 @@
 # NaturApp
 
 NaturApp es una aplicación móvil de comercio electrónico de productos
-naturales. El proyecto está dividido en dos partes que funcionan de forma
-independiente: un backend que expone una API REST y una aplicación móvil
-que la consume.
+naturales. Consta de dos partes independientes: un backend con API REST y
+una aplicación móvil que la consume.
 
-- **Backend:** Node.js con Express, persistencia en MongoDB mediante
-  Mongoose y autenticación basada en JSON Web Tokens.
-- **Aplicación móvil:** React Native con Expo Router (navegación basada en
-  archivos).
+## Cómo lo construí
 
-## Funcionalidades
+Partí de separar con claridad el servidor de la aplicación y, dentro de
+cada uno, trabajar por módulos con una sola responsabilidad.
 
-- Catálogo de productos con filtrado por categoría, búsqueda y paginación.
-- Detalle de producto con información nutricional y control de stock.
-- Carrito de compras por usuario.
-- Registro, inicio de sesión y perfil con tokens JWT.
-- Creación, listado y cancelación de pedidos, con validación de stock en
-  el servidor.
+**Backend (Node.js + Express + MongoDB).** Implementé una API REST
+organizada por recursos: un módulo de rutas por entidad (productos,
+categorías, usuarios, pedidos y carrito) que se registran en `server.js`
+bajo el prefijo `/api`. Los datos se modelan con Mongoose, con validación,
+relaciones por `ObjectId` e índice de texto para la búsqueda. La
+autenticación usa JSON Web Tokens: un middleware `authenticate` verifica
+el token y otro `authorize` restringe acciones por rol. La lógica de
+negocio vive en el servidor; por ejemplo, al crear un pedido se valida el
+stock, se calcula el total y se descuenta el inventario en una sola
+operación.
 
-## Arquitectura
+**Aplicación móvil (React Native + Expo Router).** La navegación es por
+archivos dentro de `app/`. Toda la comunicación con el backend pasa por un
+único módulo (`apiService`), de modo que la URL y las cabeceras se
+configuran en un solo lugar. La lógica de cada dominio está en custom
+hooks (`useProducts`, `useOrders`, etc.) y el estado que debe compartirse
+entre pantallas —la sesión y el carrito— lo elevé a React Context para
+tener una sola fuente de verdad. Las pantallas se limitan a consumir esos
+hooks y renderizar.
 
-La aplicación sigue una arquitectura modular cliente-servidor. Cada capa
-se organiza en módulos con una responsabilidad única, lo que facilita su
-desarrollo y mantenimiento por separado.
+**Detalles cuidados.** Carga inicial de productos y categorías en
+paralelo, paginación infinita, *pull-to-refresh*, indicadores de carga,
+manejo de errores con los mensajes del servidor y configuración del
+backend mediante variable de entorno (no incrustada en el código).
+
+Durante las pruebas en dispositivo detecté algunos defectos de diseño y
+los corregí; quedan documentados en [docs/fixes.md](./docs/fixes.md).
+
+Cada capa se explica en detalle en la carpeta [`docs/`](./docs).
+
+## Estructura
 
 ```
 NaturApp/
-├── server/          Backend Express + MongoDB (API REST)
-│   ├── models/      Esquemas de Mongoose
-│   ├── routes/      Endpoints REST (un módulo por recurso)
-│   ├── middleware/  Autenticación y autorización JWT
-│   ├── server.js    Punto de entrada del servidor
-│   └── seed.js      Carga de datos de ejemplo
-├── app/             Pantallas y navegación (Expo Router)
-├── src/
-│   ├── services/    Cliente HTTP centralizado
-│   ├── context/     Estado global (sesión y carrito)
-│   ├── hooks/       Lógica de negocio del frontend
-│   └── components/  Componentes de interfaz reutilizables
-└── docs/            Documentación del proyecto
+├── server/      Backend Express + MongoDB (modelos, rutas, middleware)
+├── app/         Pantallas y navegación (Expo Router)
+├── src/         Servicio HTTP, estado global, hooks y componentes
+└── docs/        Documentación del proyecto
 ```
-
-Los detalles de cada capa están en la carpeta [`docs/`](./docs).
-
-## Requisitos
-
-- Node.js 18 o superior.
-- MongoDB 7 (instalación local o contenedor Docker).
-- Expo Go en un dispositivo físico, o un emulador Android/iOS.
 
 ## Puesta en marcha
 
-### 1. Base de datos
-
-El backend se conecta por defecto a
-`mongodb://localhost:27017/naturapp`. La forma más rápida de tener una
-instancia es Docker:
-
 ```bash
+# 1. Base de datos
 docker run -d --name naturapp-mongo -p 27017:27017 mongo:7
+
+# 2. Backend
+cd server && npm install && npm run seed && npm run dev
+
+# 3. Aplicación móvil (desde la raíz)
+cp .env.example .env   # define EXPO_PUBLIC_API_URL con tu IP LAN
+npm install && npm start
 ```
 
-### 2. Backend
-
-```bash
-cd server
-npm install
-npm run seed     # carga categorías, productos y usuarios de ejemplo
-npm run dev      # arranca el servidor con recarga automática
-```
-
-El servidor queda disponible en `http://localhost:9090`. Puede
-comprobarse con `curl http://localhost:9090/api/health`.
-
-Usuarios creados por el seed:
-
-| Correo | Contraseña | Rol |
-|--------|------------|-----|
-| `admin@naturapp.com` | `admin123` | admin |
-| `demo@naturapp.com` | `123456` | customer |
-
-### 3. Aplicación móvil
-
-Antes de arrancar, define la URL del backend por variable de entorno
-(copiando la plantilla) para que el dispositivo pueda alcanzarlo dentro de
-la red local:
-
-```bash
-cp .env.example .env   # luego edita EXPO_PUBLIC_API_URL con tu IP LAN
-npm install
-npm start
-```
-
-Luego escanea el código QR con Expo Go o abre la app en un emulador.
+El backend queda en `http://localhost:9090` (compruébalo con
+`curl http://localhost:9090/api/health`). El seed crea dos usuarios:
+`admin@naturapp.com / admin123` (admin) y `demo@naturapp.com / 123456`
+(cliente). Los pasos detallados están en
+[docs/getting-started.md](./docs/getting-started.md).
 
 ## Documentación
 
 | Documento | Contenido |
 |-----------|-----------|
-| [docs/getting-started.md](./docs/getting-started.md) | Instalación y ejecución paso a paso. |
 | [docs/architecture.md](./docs/architecture.md) | Arquitectura y estructura de carpetas. |
 | [docs/backend.md](./docs/backend.md) | Modelos, middleware y rutas del servidor. |
 | [docs/api-reference.md](./docs/api-reference.md) | Referencia de los endpoints REST. |
 | [docs/frontend.md](./docs/frontend.md) | Navegación, estado, pantallas y componentes. |
 | [docs/data-flow.md](./docs/data-flow.md) | Flujo de datos de extremo a extremo. |
+| [docs/getting-started.md](./docs/getting-started.md) | Instalación y ejecución paso a paso. |
 | [docs/dependencies.md](./docs/dependencies.md) | Versiones de dependencias y política de versionado. |
 | [docs/fixes.md](./docs/fixes.md) | Defectos detectados y sus correcciones. |
 
@@ -112,5 +86,5 @@ Luego escanea el código QR con Expo Go o abre la app en un emulador.
 
 La aplicación móvil está fijada a Expo SDK 54. Las versiones del ecosistema
 Expo y React Native están acopladas entre sí, por lo que no deben
-actualizarse de forma aislada. Más detalles en
-[docs/dependencies.md](./docs/dependencies.md).
+actualizarse de forma aislada (ver
+[docs/dependencies.md](./docs/dependencies.md)).
